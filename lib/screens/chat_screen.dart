@@ -27,6 +27,7 @@ class ChatScreen extends StatefulWidget {
 
 class _ChatScreenState extends State<ChatScreen> {
 
+  Uint8List? _image;
   bool _isWeb = false;
 
   List<Message> _list = [];
@@ -34,6 +35,37 @@ class _ChatScreenState extends State<ChatScreen> {
   final _textController = TextEditingController();
   bool _showEmoji = false;
   bool _isUploading = false;
+  String photoUrl = "";
+
+  pickImage(ImageSource source) async {
+    final ImagePicker _imagePicker = ImagePicker();
+    XFile? _file = await _imagePicker.pickImage(source: source);
+
+    if (_file != null) {
+      return await _file.readAsBytes();
+    }
+    print('No Image Selected!!');
+  }
+
+  void selectImage() async {
+    Uint8List im = await pickImage(ImageSource.gallery);
+    setState(() {
+      _image = im;
+    });
+  }
+
+  void uploadPhoto() async {
+    setState(() {
+      _isUploading = true;
+    });
+    photoUrl = await APIs().uploadImageToStorage(_image!);
+    APIs.sendMessage(widget.user, photoUrl, Type.image).then((value) {
+      showSnackBar("Image Posted Successfully", context);
+      setState(() {
+        _isUploading = false;
+      });
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -269,19 +301,16 @@ class _ChatScreenState extends State<ChatScreen> {
                   ),
                   IconButton(
                       onPressed: () async {
-                        final ImagePicker picker = ImagePicker();
-                        final List<XFile> images =
-                            await picker.pickMultiImage(imageQuality: 50);
+                        Uint8List im = await pickImage(ImageSource.gallery);
+                        setState(() {
+                          _image = im;
+                        });
+                        if (_image != null) {
 
-                        for (var i in images) {
-                          setState(() {
-                            _isUploading = true;
-                          });
-                          showSnackBar(i.path, context);
-                          await APIs.sendChatImage(widget.user, File(i.path));
-                          setState(() {
-                            _isUploading = false;
-                          });
+                          uploadPhoto();
+
+                        } else {
+                          showSnackBar("image is null", context);
                         }
                       },
                       icon: Icon(
@@ -290,20 +319,16 @@ class _ChatScreenState extends State<ChatScreen> {
                       )),
                   IconButton(
                       onPressed: () async {
-                        final ImagePicker picker = ImagePicker();
-                        final XFile? image = await picker.pickImage(
-                            source: ImageSource.camera, imageQuality: 50);
+                        Uint8List im = await pickImage(ImageSource.camera);
+                        setState(() {
+                          _image = im;
+                        });
+                        if (_image != null) {
 
-                        if (image != null) {
-                          showSnackBar(image.path, context);
-                          setState(() {
-                            _isUploading = true;
-                          });
-                          await APIs.sendChatImage(
-                              widget.user, File(image.path));
-                          setState(() {
-                            _isUploading = false;
-                          });
+                          uploadPhoto();
+
+                        } else {
+                          showSnackBar("image is null", context);
                         }
                       },
                       icon: Icon(

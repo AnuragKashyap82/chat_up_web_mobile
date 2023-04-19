@@ -246,19 +246,19 @@ class APIs {
         .snapshots();
   }
 
-  static Future<void> sendChatImage(ChatUser chatUser, File file) async {
-    final ext = file.path.split('.').last;
-    final ref = storage.ref().child(
-        "image/${getConversationId(chatUser.id)}/${DateTime.now().millisecondsSinceEpoch}.$ext");
-    await ref
-        .putFile(file, SettableMetadata(contentType: 'images/$ext'))
-        .then((p0) {
-      log("Data transferred: ${p0.bytesTransferred / 1000} kb");
-    });
-
-    final imageUrl = await ref.getDownloadURL();
-    await sendMessage(chatUser, imageUrl, Type.image);
-  }
+  // static Future<void> sendChatImage(ChatUser chatUser, File file) async {
+  //   final ext = file.path.split('.').last;
+  //   final ref = storage.ref().child(
+  //       "image/${getConversationId(chatUser.id)}/${DateTime.now().millisecondsSinceEpoch}.$ext");
+  //   await ref
+  //       .putFile(file, SettableMetadata(contentType: 'images/$ext'))
+  //       .then((p0) {
+  //     log("Data transferred: ${p0.bytesTransferred / 1000} kb");
+  //   });
+  //
+  //   final imageUrl = await ref.getDownloadURL();
+  //   await sendMessage(chatUser, imageUrl, Type.image);
+  // }
   //delete message
   static Future<void> deleteMessage(Message message) async {
     await firestore
