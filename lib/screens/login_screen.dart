@@ -1,7 +1,6 @@
 import 'package:chat_up/apis/apis.dart';
 import 'package:chat_up/screens/signup_screen.dart';
 import 'package:flutter/material.dart';
-import 'package:lottie/lottie.dart';
 
 import '../animations/fade_animation.dart';
 import '../utils/global_variable.dart';
@@ -143,10 +142,11 @@ class _LoginScreenState extends State<LoginScreen> {
                                     Container(
                                         width: 400,
                                         height: 400,
-                                        child: Lottie.asset(
-                                          "assets/raw/splash.json",
-                                          frameRate: FrameRate.max,
-                                        ))),
+                                        child: Icon(
+                                          Icons.mark_unread_chat_alt_outlined,
+                                          size: 160,
+                                          color: Colors.pink,
+                                        ),)),
                               ),
                             ],
                           ),

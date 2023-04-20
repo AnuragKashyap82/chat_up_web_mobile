@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:lottie/lottie.dart';
 
 import '../animations/fade_animation.dart';
 import '../apis/apis.dart';
@@ -149,10 +148,11 @@ class _SignUpScreenState extends State<SignUpScreen> {
                                     Container(
                                         width: 400,
                                         height: 400,
-                                        child: Lottie.asset(
-                                          "assets/raw/splash.json",
-                                          frameRate: FrameRate.max,
-                                        ))),
+                                        child: Icon(
+                                          Icons.mark_unread_chat_alt_outlined,
+                                          size: 160,
+                                          color: Colors.pink,
+                                        ),)),
                               ),
                             ],
                           ),
