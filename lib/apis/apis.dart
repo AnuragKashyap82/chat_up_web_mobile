@@ -61,13 +61,13 @@ class APIs {
         },
       };
       var response =
-      await post(Uri.parse("https://fcm.googleapis.com/fcm/send"),
-          headers: {
-            HttpHeaders.contentTypeHeader: 'application/json',
-            HttpHeaders.authorizationHeader:
-            'key=AAAA2yCb2_o:APA91bHg88HmRF1gzWZ71ly_XhCnFlMHZr0j1lgowZ6FQP8IUp9MErFoj0Eavj6ZeV2d-WYbpEkE9IVN_cpe8tRm1gC8f1r2zQdpW2fW1YgDNGVBLzfEcXdFIKtzZSB3m1PEBPnm69Z9'
-          },
-          body: jsonEncode(body));
+          await post(Uri.parse("https://fcm.googleapis.com/fcm/send"),
+              headers: {
+                HttpHeaders.contentTypeHeader: 'application/json',
+                HttpHeaders.authorizationHeader:
+                    'key=AAAA2yCb2_o:APA91bHg88HmRF1gzWZ71ly_XhCnFlMHZr0j1lgowZ6FQP8IUp9MErFoj0Eavj6ZeV2d-WYbpEkE9IVN_cpe8tRm1gC8f1r2zQdpW2fW1YgDNGVBLzfEcXdFIKtzZSB3m1PEBPnm69Z9'
+              },
+              body: jsonEncode(body));
       log('Response status: ${response.statusCode}');
       log('Response body: ${response.body}');
     } catch (e) {
@@ -155,10 +155,10 @@ class APIs {
     return firestore
         .collection('users')
         .where('id',
-        whereIn: userIds.isEmpty
-            ? ['']
-            : userIds) //because empty list throws an error
-    // .where('id', isNotEqualTo: user.uid)
+            whereIn: userIds.isEmpty
+                ? ['']
+                : userIds) //because empty list throws an error
+        // .where('id', isNotEqualTo: user.uid)
         .snapshots();
   }
 
@@ -246,6 +246,11 @@ class APIs {
         .snapshots();
   }
 
+  static Future<String> uploadPhoto(Uint8List _image) async {
+    final photoUrl = await APIs().uploadChatImageToStorage(_image);
+    return photoUrl;
+  }
+
   // static Future<void> sendChatImage(ChatUser chatUser, File file) async {
   //   final ext = file.path.split('.').last;
   //   final ref = storage.ref().child(
@@ -279,7 +284,6 @@ class APIs {
         .update({'msg': updatedMsg});
   }
 
-
   Future<String> signUpUser({
     required String email,
     required String password,
@@ -288,27 +292,26 @@ class APIs {
     final time = DateTime.now().millisecondsSinceEpoch.toString();
     String res = "Some Error Occured";
     try {
-      if (email.isNotEmpty &&
-          password.isNotEmpty &&
-          name.isNotEmpty) {
+      if (email.isNotEmpty && password.isNotEmpty && name.isNotEmpty) {
         UserCredential cred = await auth.createUserWithEmailAndPassword(
             email: email, password: password);
 
-
-        Map<String,dynamic> data = {
+        Map<String, dynamic> data = {
           "about": "Hey, I am Anurag Kashyap!!",
           "created_at": time,
-          "email": email,  // Updating Document Reference
+          "email": email, // Updating Document Reference
           "id": cred.user!.uid,
-          'image':"", // Updating Document Reference
+          'image': "", // Updating Document Reference
           'is_online': false, // Updating Document Reference
           'last_active': time, // Updating Document Reference
           'name': name, // Updating Document Reference
           'push_token': "",
         };
-        await firestore.collection("users").doc(cred.user!.uid).set(data).whenComplete((){
-
-        });
+        await firestore
+            .collection("users")
+            .doc(cred.user!.uid)
+            .set(data)
+            .whenComplete(() {});
 
         res = "Success";
       }
@@ -331,39 +334,50 @@ class APIs {
   }) async {
     String res = "No user found";
     try {
-      if (email.isNotEmpty &&
-          password.isNotEmpty){
+      if (email.isNotEmpty && password.isNotEmpty) {
         await auth.signInWithEmailAndPassword(email: email, password: password);
         res = "Success";
-      }else{
+      } else {
         res = "Please enter all the fields";
       }
-
     } on FirebaseAuthException catch (e) {
       if (e.code == "invalid-email") {
         res = "The email is badly formatted";
       } else if (e.code == "wrong-password") {
         res = "The password is Incorrect";
-      }else if (e.code == "weak-password") {
+      } else if (e.code == "weak-password") {
         res = "The password is weak 6 characters must";
       }
-    }
-    catch (err) {
+    } catch (err) {
       res = err.toString();
     }
     return res;
   }
 
   Future<String> uploadImageToStorage(Uint8List file) async {
-
-    Reference ref = storage.ref().child("profileImages").child(FirebaseAuth.instance.currentUser!.uid);
+    Reference ref = storage
+        .ref()
+        .child("profileImages")
+        .child(FirebaseAuth.instance.currentUser!.uid);
 
     UploadTask uploadTask = ref.putData(file);
 
     TaskSnapshot snap = await uploadTask;
     String downloadUrl = await snap.ref.getDownloadURL();
     return downloadUrl;
-
   }
 
+  Future<String> uploadChatImageToStorage(Uint8List file) async {
+    Reference ref = storage
+        .ref()
+        .child(
+            "image/${getConversationId(me.id)}")
+        .child("${DateTime.now().millisecondsSinceEpoch}");
+
+    UploadTask uploadTask = ref.putData(file);
+
+    TaskSnapshot snap = await uploadTask;
+    String downloadUrl = await snap.ref.getDownloadURL();
+    return downloadUrl;
+  }
 }

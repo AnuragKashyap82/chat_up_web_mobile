@@ -54,18 +54,7 @@ class _ChatScreenState extends State<ChatScreen> {
     });
   }
 
-  void uploadPhoto() async {
-    setState(() {
-      _isUploading = true;
-    });
-    photoUrl = await APIs().uploadImageToStorage(_image!);
-    APIs.sendMessage(widget.user, photoUrl, Type.image).then((value) {
-      showSnackBar("Image Posted Successfully", context);
-      setState(() {
-        _isUploading = false;
-      });
-    });
-  }
+
 
   @override
   Widget build(BuildContext context) {
@@ -306,8 +295,17 @@ class _ChatScreenState extends State<ChatScreen> {
                           _image = im;
                         });
                         if (_image != null) {
+                          setState(() {
+                            _isUploading = true;
+                          });
+                          final downloadUrl = APIs.uploadPhoto(_image!).then((value) async {
+                            setState(() {
+                              _isUploading = false;
+                            });
+                            await APIs.sendMessage(widget.user, value, Type.image);
+                            showSnackBar("Image Posted Successfully", context);
+                          });
 
-                          uploadPhoto();
 
                         } else {
                           showSnackBar("image is null", context);
@@ -324,8 +322,17 @@ class _ChatScreenState extends State<ChatScreen> {
                           _image = im;
                         });
                         if (_image != null) {
+                          setState(() {
+                            _isUploading = true;
+                          });
+                           final downloadUrl = APIs.uploadPhoto(_image!).then((value) async {
+                            setState(() {
+                              _isUploading = false;
+                            });
+                            await APIs.sendMessage(widget.user, value, Type.image);
+                            showSnackBar("Image Posted Successfully", context);
+                          });
 
-                          uploadPhoto();
 
                         } else {
                           showSnackBar("image is null", context);

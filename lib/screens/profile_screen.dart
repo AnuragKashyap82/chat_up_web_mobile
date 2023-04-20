@@ -25,7 +25,6 @@ class ProfileScreen extends StatefulWidget {
 
 class _ProfileScreenState extends State<ProfileScreen> {
   final _formKey = GlobalKey<FormState>();
-
   bool _isLoading = false;
   var _userData = {};
   Uint8List? _image;
@@ -48,7 +47,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
     });
   }
 
-  void uploadPhoto() async {
+  void uploadPhoto(Uint8List? _image) async {
     setState(() {
       _isLoading = true;
     });
@@ -61,36 +60,45 @@ class _ProfileScreenState extends State<ProfileScreen> {
     });
   }
 
-  void loadProfileImage() async {
-    setState(() {
-      _isLoading = true;
-    });
-    try {
-      var userSnap = await FirebaseFirestore.instance
-          .collection("users")
-          .doc(FirebaseAuth.instance.currentUser?.uid)
-          .get();
-      if (userSnap.exists) {
-        setState(() {
-          _userData = userSnap.data()!;
-        });
-      } else {
-
-      }
-    } catch (e) {
-      showSnackBar(e.toString(), context);
-    }
-    setState(() {
-      _isLoading = false;
-    });
-  }
+  // @override
+  // void initState() {
+  //   // TODO: implement initState
+  //   super.initState();
+  //   setState(() {
+  //     _isLoading = true;
+  //   });
+  //   // loadProfileImage();
+  // }
 
   @override
-  void initState() {
-    // TODO: implement initState
-    super.initState();
-    loadProfileImage();
+  void dispose() {
+    // TODO: implement dispose
+    super.dispose();
   }
+
+  // void loadProfileImage() async {
+  //   setState(() {
+  //     _isLoading = true;
+  //   });
+  //   try {
+  //     var userSnap = await FirebaseFirestore.instance
+  //         .collection("users")
+  //         .doc(FirebaseAuth.instance.currentUser?.uid)
+  //         .get();
+  //     if (userSnap.exists) {
+  //       setState(() {
+  //         _userData = userSnap.data()!;
+  //         _isLoading = false;
+  //       });
+  //     } else {
+  //       setState(() {
+  //         _isLoading = false;
+  //       });
+  //     }
+  //   } catch (e) {
+  //     showSnackBar(e.toString(), context);
+  //   }
+  // }
 
   @override
   Widget build(BuildContext context) {
@@ -144,7 +152,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
                             )
                           : CircleAvatar(
                               radius: 64,
-                              backgroundImage: NetworkImage("${_userData["image"]}"),
+                              backgroundImage:
+                                  NetworkImage(widget.user.image),
                             ),
                       Positioned(
                         bottom: 0,
@@ -225,11 +234,15 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       } else {}
                     },
                     icon: Icon(Icons.edit),
-                    label: _isLoading? CircularProgressIndicator(strokeWidth: 2, color: Colors.white,):
-                    Text(
-                      "Update",
-                      style: TextStyle(fontSize: 16),
-                    ),
+                    label: _isLoading
+                        ? CircularProgressIndicator(
+                            strokeWidth: 2,
+                            color: Colors.white,
+                          )
+                        : Text(
+                            "Update",
+                            style: TextStyle(fontSize: 16),
+                          ),
                   ),
                 ],
               ),
@@ -279,7 +292,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         _image = im;
                       });
                       if (_image != null) {
-                        uploadPhoto();
+                        uploadPhoto(_image!);
                       } else {
                         showSnackBar("image is null", context);
                       }
@@ -302,11 +315,12 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         _image = im;
                       });
                       if (_image != null) {
-                        uploadPhoto();
+                        uploadPhoto(_image!);
                       } else {
                         showSnackBar("image is null", context);
                       }
-                      uploadPhoto();
+                      uploadPhoto(_image!);
+                      ;
                       Navigator.pop(context);
                     },
                     child: Icon(
